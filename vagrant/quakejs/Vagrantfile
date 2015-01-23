@@ -1,0 +1,34 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+Vagrant.configure(2) do |config|
+  config.vm.box = "ubuntu/trusty32"
+
+  config.vm.provider "virtualbox" do |vb|
+    vb.cpus = 1
+    vb.memory = 512
+  end
+
+  config.vm.hostname = "quakejs"
+  config.vm.network :forwarded_port, guest: 8080, host: 8080
+
+  config.vm.provision "shell", inline: <<-SHELL
+    # update system
+    aptitude -y upgrade
+
+    # install tools
+    aptitude -y install make git npm
+    ln -s /usr/bin/nodejs /usr/bin/node
+
+    # get quakejs
+    git clone https://github.com/inolen/quakejs.git
+    
+    popd
+    sudo chown -R vagrant:vagrant quakejs
+    cd quakejs
+    npm install
+    echo '{ "content": "content.quakejs.com" }' > bin/web.json
+    node bin/web.js --config ./web.json
+
+  SHELL
+end
