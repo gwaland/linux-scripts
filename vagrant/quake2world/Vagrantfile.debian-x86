@@ -15,7 +15,7 @@ Vagrant.configure(2) do |config|
   config.vm.provision "shell", inline: <<-SHELL
     # update system
     aptitude update
-    aptitude -y upgrade
+    #aptitude -y upgrade
 
     # install tools
     aptitude -y install git build-essential autoconf automake libtool libcurl4-openssl-dev libphysfs-dev libsdl2-mixer-dev libsdl2-image-dev libxml2-dev libjpeg8-dev
