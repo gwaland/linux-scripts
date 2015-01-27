@@ -1,0 +1,40 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+Vagrant.configure(2) do |config|
+  config.vm.box = "puphpet/debian75-x32"
+  config.ssh.forward_x11 = true
+  config.vm.provider "virtualbox" do |vb|
+    vb.cpus = 1
+    vb.memory = 512
+  end
+
+  config.vm.hostname = "quake2world"
+  config.vm.network :forwarded_port, guest: 1998, host: 1998
+
+  config.vm.provision "shell", inline: <<-SHELL
+    # update system
+    aptitude update
+    aptitude -y upgrade
+
+    # install tools
+    aptitude -y install git build-essential autoconf automake libtool libcurl4-openssl-dev libphysfs-dev libsdl2-mixer-dev libsdl2-image-dev libxml2-dev libjpeg8-dev
+
+    # Clone repos
+    git clone https://github.com/jdolan/quake2world.git
+    git clone https://github.com/jdolan/quake2world-data.git
+
+    sudo chown -R vagrant:vagrant quake2world quake2world-data
+
+    # Build
+    cd quake2world
+    autoreconf -i
+    ./configure && make && sudo make install
+
+    # install data
+    cd ~
+    #removing broken link
+    sudo rm -rf /usr/local/share/quake2world
+    sudo ln -s quake2world-data/target /usr/local/share/quake2world
+  SHELL
+end
