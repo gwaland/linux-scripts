@@ -19,29 +19,30 @@ Vagrant.configure(2) do |config|
 
     # install tools
     aptitude -y install git build-essential autoconf automake libtool libcurl4-openssl-dev libphysfs-dev libsdl2-mixer-dev libsdl2-image-dev libxml2-dev libjpeg-dev
-
+    
     # Clone repos
     git clone https://github.com/jdolan/quake2world.git
     git clone https://github.com/jdolan/quake2world-data.git
-
+    popd
     sudo chown -R vagrant:vagrant quake2world quake2world-data
-
+    
     # Build
     cd quake2world
     autoreconf -i
     ./configure && make && sudo make install
 
     # install data
-    cd ~
+    cd /home/vagrant
     #removing broken link
-    #sudo rm -rf /usr/local/share/quake2world
-    sudo ln -s quake2world-data/target /usr/local/share/quake2world
+    sudo rm -rf /usr/local/share/quake2world
+    sudo ln -s /home/vagrant/quake2world-data/target /usr/local/share/quake2world
     
     # create basic server config & shell script
-    cd ~
-    echo -e "sv_hostname \"Vagrant Quake2World Test Server\"\nsv_max_clients 4\nsv_spawn_protection 3\nsv_public 0" > ~/server.cfg
+    echo -e "sv_hostname \"Vagrant Quake2World Test Server\"\nsv_max_clients 4\nsv_spawn_protection 3\nsv_public 0" > server.cfg
     echo quake2world +set dedicated 1 +exec server.cfg > startserver.sh
     sudo chown -R vagrant:vagrant startserver.sh server.cfg
     sudo chmod 700 startserver.sh
+    mkdir -p .quake2world/default 
+    ln -s /home/vagrant/server.cfg /home/vagrant/.quake2world/default/server.cfg
   SHELL
 end
