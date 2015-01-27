@@ -32,6 +32,8 @@ Vagrant.configure(2) do |config|
 
     # install data
     cd ~
+    #removing broken link
+    sudo rm -rf /usr/local/share/quake2world
     sudo ln -s quake2world-data/target /usr/local/share/quake2world
   SHELL
 end
