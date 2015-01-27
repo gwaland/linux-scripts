@@ -19,21 +19,19 @@ Vagrant.configure(2) do |config|
     # install tools
     aptitude -y install git build-essential autoconf automake libtool libcurl4-openssl-dev libphysfs-dev libsdl2-mixer-dev libsdl2-image-dev libxml2-dev libjpeg8-dev
 
-    # Clone repo
+    # Clone repos
     git clone https://github.com/jdolan/quake2world.git
+    git clone https://github.com/jdolan/quake2world-data.git
    
-    sudo chown -R vagrant:vagrant quake2world
+    sudo chown -R vagrant:vagrant quake2world quake2world-data
+    
     # Build
     cd quake2world
     autoreconf -i
     ./configure && make && sudo make install
 
-    # Clone data
-    cd ~
-    git clone https://github.com/jdolan/quake2world-data.git
-    
     # install data
-    sudo chown -R vagrant:vagrant quake2world-data
+    cd ~
     sudo ln -s quake2world-data/target /usr/local/share/quake2world
   SHELL
 end
