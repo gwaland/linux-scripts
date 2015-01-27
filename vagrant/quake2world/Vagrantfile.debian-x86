@@ -2,7 +2,7 @@
 # vi: set ft=ruby :
 
 Vagrant.configure(2) do |config|
-  config.vm.box = "puphpet/debian75-x32"
+  config.vm.box = "remram/debian-8-i386"
   config.ssh.forward_x11 = true
   config.vm.provider "virtualbox" do |vb|
     vb.cpus = 1
@@ -13,8 +13,6 @@ Vagrant.configure(2) do |config|
   config.vm.network :forwarded_port, guest: 1998, host: 1998
 
   config.vm.provision "shell", inline: <<-SHELL
-    #Adding backports for SDL2
-    echo "deb http://http.debian.net/debian wheezy-backports main" > /etc/apt/sources.list.d/backports.list
     # update system
     aptitude update
     aptitude -y upgrade
