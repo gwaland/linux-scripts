@@ -2,7 +2,7 @@
 # vi: set ft=ruby :
 
 Vagrant.configure(2) do |config|
-  config.vm.box = "remram/debian-8-i386"
+  config.vm.box = "deb/jessie-i386"
   config.ssh.forward_x11 = true
   config.vm.provider "virtualbox" do |vb|
     vb.cpus = 1
