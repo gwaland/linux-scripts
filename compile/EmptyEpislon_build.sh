@@ -1,9 +1,10 @@
 #!/bin/bash
-## apt-get install cmake build-essential git codeblocks libgl1-mesa-dev libxrandr-dev libfreetype6-dev libglew-dev libjpeg8-dev libopenal-dev libsndfile1-dev
+## apt-get install cmake build-essential git libgl1-mesa-dev libxrandr-dev libfreetype6-dev libglew-dev libjpeg8-dev libopenal-dev libsndfile1-dev
 
 ## Optional 
 ## apt-get install gcc-mingw32
 
+##Use Codeblocks? 1=yes 0=no  #apt-get install codeblocks
 USECB=0
 MAINDIR=~/code/emptyepsilon
 
