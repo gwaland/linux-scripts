@@ -25,6 +25,10 @@ if [ ! -d $MAINDIR/SFML-2.1 ]; then
 	cd $MAINDIR/SFML-2.1
 	echo Building and installing SFML-2.1
 	cmake .
+	## If cmake fails on FreeType, make sure that cmake is looking in /usr/include/freetype2 - this was not in the cmake on the RPi
+	## to help fix use 
+	# ccmake .
+	## apt-get install cmake-curses-gui 
 	make
 	sudo make install
 fi
