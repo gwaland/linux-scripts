@@ -27,9 +27,7 @@ if [ ! -d $MAINDIR/SFML-2.1 ]; then
 	## If cmake fails on FreeType, make sure that cmake is looking in /usr/include/freetype2 - this was not in the cmake on the RPi
 	## to help fix use 
 	# apt-get install cmake-curses-gui && ccmake .
-	cmake .
-	make
-	sudo make install
+	cmake . && make && sudo make install
 fi
 
 cd $MAINDIR/SeriousProton
