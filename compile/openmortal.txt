@@ -1,0 +1,8 @@
+http://www.calculate-linux.org/packages/games-arcade/openmortal/files/openmortal-0.7-freetype.patch
+
+sudo apt-get install libperl-dev
+
+
+src/main.cpp
+-void PgTest();
++void PgTest() {}
