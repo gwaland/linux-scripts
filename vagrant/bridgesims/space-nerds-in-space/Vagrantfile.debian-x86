@@ -32,12 +32,12 @@ Vagrant.configure(2) do |config|
     
     # Build
     cd space-nerds-in-space
-    make 
+    make | tee ../snis_build.log
     
     #build deb
     sudo apt-get install dpkg-dev debhelper devscripts
-    dpkg-buildpackage
+    dpkg-buildpackage | tee ../snis_dpkg-build.log
     #install deb
-    sudo dpkg -i ../snis_0.*_i386.deb
+    sudo dpkg -i ../snis_0.*_i386.deb | tee ../snis_dpkg-install.log
   SHELL
 end
