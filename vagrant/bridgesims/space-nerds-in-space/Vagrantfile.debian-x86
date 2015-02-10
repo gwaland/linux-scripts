@@ -38,6 +38,6 @@ Vagrant.configure(2) do |config|
     sudo apt-get install dpkg-dev debhelper devscripts
     dpkg-buildpackage
     
-    dpkg -i ../snis_0.*_i386.deb
+    sudo dpkg -i ../snis_0.*_i386.deb
   SHELL
 end
