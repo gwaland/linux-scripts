@@ -14,14 +14,14 @@ Vagrant.configure(2) do |config|
   end
 
   config.vm.hostname = "bridgesim-snis"
-  config.vm.network :forwarded_port, guest: 1998, host: 1998
+  config.vm.network :forwarded_port, guest: 8000, host: 8000  #for python -m SimpleHTTPServer 
 
   config.vm.provision "shell", inline: <<-SHELL
     # update system
     aptitude update
     #aptitude -y upgrade
     # install tools
-    aptitude -y install git build-essential portaudio19-dev libvorbis-dev libgtk2.0-dev openscad libgtkglext1-dev liblua5.2-dev libglew1.5-dev
+    aptitude -y install git build-essential portaudio19-dev libvorbis-dev libgtk2.0-dev openscad libgtkglext1-dev liblua5.2-dev libglew1.5-dev libsdl1.2-dev 
 
     
     # Clone repos
@@ -37,7 +37,7 @@ Vagrant.configure(2) do |config|
     #build deb
     sudo apt-get install dpkg-dev debhelper devscripts
     dpkg-buildpackage
-    
+    #install deb
     sudo dpkg -i ../snis_0.*_i386.deb
   SHELL
 end
