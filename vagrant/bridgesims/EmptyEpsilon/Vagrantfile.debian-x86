@@ -1,6 +1,8 @@
 # -*- mode: ruby -*-
 # vi: set ft=ruby :
 
+## Rename this to Vagrantfile to have 'vagrant up' work properly
+
 ###32bit Debian 9 Vagrant VM
 ### for EmptyEpsilon https://github.com/daid/EmptyEpsilon
 ### By Kwadroke "of The Wired" https://github.com/kwadroke
@@ -21,20 +23,20 @@ Vagrant.configure(2) do |config|
     aptitude update
     #aptitude -y upgrade
     # install tools
-    aptitude -y install cmake build-essential git libgl1-mesa-dev libxrandr-dev libfreetype6-dev libglew-dev libjpeg8-dev libopenal-dev libsndfile1-dev unzip
+    aptitude -y install cmake build-essential git libgl1-mesa-dev libxrandr-dev libfreetype6-dev libglew-dev libjpeg-dev libopenal-dev libsndfile1-dev unzip
     # Clone repos
     git clone https://github.com/daid/SeriousProton.git
     git clone https://github.com/daid/EmptyEpsilon.git
     # Get SFML 2.1
     wget https://github.com/LaurentGomila/SFML/archive/2.1.zip
-	  unzip 2.1.zip
+    unzip 2.1.zip
    
     popd
-    sudo chown -R vagrant:vagrant SeriousProton EmptyEpsilon 
+    sudo chown -R vagrant:vagrant SeriousProton EmptyEpsilon SFML-2.1
     
     # Build SFML
     cd SFML-2.1
-    cmake . && make | tee ../ee_build_smfl.log && sudo make install | tee ../ee_install_smfl.log
+    cmake . | tee ../ee_cmake_sfml.log && make | tee ../ee_build_smfl.log && sudo make install | tee ../ee_install_smfl.log
     
     # Build EmptyEpsilon
     cd ~/EmptyEpsilon
@@ -46,9 +48,13 @@ Vagrant.configure(2) do |config|
     python make_cbp.py | tee ../ee_build_release.log
     
     #make redist
+    mkdir ../EELin32
     cp -r scripts resources packs ../EELin32
     cp LICENSE README.md ../EELin32
     cp EmptyEpsilon EmptyEpsilon_debug ../EELin32
+    
+    ### If EmptyEpsilon does not start try:
+    ### LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/lib ./EmptyEpsilon
     
   SHELL
 end
