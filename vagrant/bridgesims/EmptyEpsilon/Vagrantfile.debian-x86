@@ -39,7 +39,7 @@ Vagrant.configure(2) do |config|
     cmake . | tee ../ee_cmake_sfml-log.txt && make | tee ../ee_build_smfl-log.txt && sudo make install | tee ../ee_install_smfl-log.txt
     
     # Build EmptyEpsilon
-    cd ~/EmptyEpsilon
+    cd ../EmptyEpsilon
     
     # Make Debug
     python make_cbp.py debug | tee ../ee_build_debug-log.txt
@@ -60,6 +60,7 @@ Vagrant.configure(2) do |config|
     
     # Start webserver on port 8000
     cd ..
-    python -m SimpleHTTPServer
+    echo Starting Webserver. Connect via http://localhost:8000
+    python -m SimpleHTTPServer & 
   SHELL
 end
