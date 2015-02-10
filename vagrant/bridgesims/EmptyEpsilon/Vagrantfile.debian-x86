@@ -55,7 +55,7 @@ Vagrant.configure(2) do |config|
     
     ### If EmptyEpsilon does not start try:
     ### LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/lib ./EmptyEpsilon
-    echo LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/lib ./EmptyEpsilon > ../EELin32/start.sh
+    echo LD_LIBRARY_PATH=\$LD_LIBRARY_PATH:/usr/local/lib ./EmptyEpsilon > ../EELin32/start.sh
     chmod +x start.sh
     cd ..
     # Package EELin32
