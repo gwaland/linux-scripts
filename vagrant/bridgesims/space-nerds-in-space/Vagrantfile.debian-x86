@@ -1,0 +1,43 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+###32bit Debian 9 Vagrant VM
+### for Space Nerds In Space http://smcameron.github.io/space-nerds-in-space/
+### By Kwadroke "of The Wired" https://github.com/kwadroke
+
+Vagrant.configure(2) do |config|
+  config.vm.box = "deb/jessie-i386"
+  config.ssh.forward_x11 = true
+  config.vm.provider "virtualbox" do |vb|
+    vb.cpus = 1
+    vb.memory = 512
+  end
+
+  config.vm.hostname = "bridgesim-snis"
+  config.vm.network :forwarded_port, guest: 1998, host: 1998
+
+  config.vm.provision "shell", inline: <<-SHELL
+    # update system
+    aptitude update
+    #aptitude -y upgrade
+    # install tools
+    aptitude -y install git build-essential portaudio19-dev libvorbis-dev libgtk2.0-dev openscad libgtkglext1-dev liblua5.2-dev libglew1.5-dev
+
+    
+    # Clone repos
+    git clone https://github.com/smcameron/space-nerds-in-space.git
+   
+    popd
+    sudo chown -R vagrant:vagrant space-nerds-in-space
+    
+    # Build
+    cd space-nerds-in-space
+    make 
+    
+    #build deb
+    sudo apt-get install dpkg-dev debhelper devscripts
+    dpkg-buildpackage
+    
+    dpkg -i ../snis_0.*_i386.deb
+  SHELL
+end
