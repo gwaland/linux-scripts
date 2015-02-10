@@ -1,0 +1,54 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+###32bit Debian 9 Vagrant VM
+### for EmptyEpsilon https://github.com/daid/EmptyEpsilon
+### By Kwadroke "of The Wired" https://github.com/kwadroke
+
+Vagrant.configure(2) do |config|
+  config.vm.box = "deb/jessie-i386"
+  config.ssh.forward_x11 = true
+  config.vm.provider "virtualbox" do |vb|
+    vb.cpus = 1
+    vb.memory = 512
+  end
+
+  config.vm.hostname = "bridgesim-ee"
+  config.vm.network :forwarded_port, guest: 8000, host: 8000  #for python -m SimpleHTTPServer 
+
+  config.vm.provision "shell", inline: <<-SHELL
+    # update system
+    aptitude update
+    #aptitude -y upgrade
+    # install tools
+    aptitude -y install cmake build-essential git libgl1-mesa-dev libxrandr-dev libfreetype6-dev libglew-dev libjpeg8-dev libopenal-dev libsndfile1-dev unzip
+    # Clone repos
+    git clone https://github.com/daid/SeriousProton.git
+    git clone https://github.com/daid/EmptyEpsilon.git
+    # Get SFML 2.1
+    wget https://github.com/LaurentGomila/SFML/archive/2.1.zip
+	  unzip 2.1.zip
+   
+    popd
+    sudo chown -R vagrant:vagrant SeriousProton EmptyEpsilon 
+    
+    # Build SFML
+    cd SFML-2.1
+    cmake . && make | tee ../ee_build_smfl.log && sudo make install | tee ../ee_install_smfl.log
+    
+    # Build EmptyEpsilon
+    cd ~/EmptyEpsilon
+    
+    # Make Debug
+    python make_cbp.py debug | tee ../ee_build_debug.log
+    mv EmptyEpsilon EmptyEpsilon_debug
+    #Make Release
+    python make_cbp.py | tee ../ee_build_release.log
+    
+    #make redist
+    cp -r scripts resources packs ../EELin32
+    cp LICENSE README.md ../EELin32
+    cp EmptyEpsilon EmptyEpsilon_debug ../EELin32
+    
+  SHELL
+end
