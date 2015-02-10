@@ -52,10 +52,13 @@ Vagrant.configure(2) do |config|
     cp -r scripts resources packs ../EELin32
     cp LICENSE README.md ../EELin32
     cp EmptyEpsilon EmptyEpsilon_debug ../EELin32
+    #add SFML libraries into lib
+    mkdir ../EELin32/lib
+    cp ../SFML-2.1/lib/* ../EELin32/lib
     
     ### If EmptyEpsilon does not start try:
     ### LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/lib ./EmptyEpsilon
-    echo LD_LIBRARY_PATH=\$LD_LIBRARY_PATH:/usr/local/lib ./EmptyEpsilon > ../EELin32/start.sh
+    echo LD_LIBRARY_PATH=\$LD_LIBRARY_PATH:./lib ./EmptyEpsilon > ../EELin32/start.sh
     chmod +x start.sh
     cd ..
     # Package EELin32
