@@ -32,8 +32,9 @@ Vagrant.configure(2) do |config|
     unzip 2.1.zip
     # Get SFML 2.2 for Windows
     #wget http://www.sfml-dev.org/files/SFML-2.2-windows-gcc-4.9.2-mingw-32-bit.zip | tee ee_download_sfml2.2_log.txt
+    #unzip SFML-2.2-windows-gcc-4.9.2-mingw-32-bit.zip
     wget http://www.sfml-dev.org/files/SFML-2.2-windows-gcc-4.8.1-tdm-32-bit.zip| tee ee_download_sfml2.2_log.txt
-    unzip SFML-2.2-windows-gcc-4.9.2-mingw-32-bit.zip
+    unzip SFML-2.2-windows-gcc-4.8.1-tdm-32-bit.zip
     
     sudo chown -R vagrant:vagrant SeriousProton EmptyEpsilon SFML-2.1 SFML-2.2
     
