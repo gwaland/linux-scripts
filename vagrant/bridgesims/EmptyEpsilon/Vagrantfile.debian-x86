@@ -30,11 +30,14 @@ Vagrant.configure(2) do |config|
     # Get SFML 2.1
     wget https://github.com/LaurentGomila/SFML/archive/2.1.zip
     unzip 2.1.zip
-   
-    popd
-    sudo chown -R vagrant:vagrant SeriousProton EmptyEpsilon SFML-2.1
+    # Get SFML 2.1 for Windows
+    wget http://www.sfml-dev.org/files/SFML-2.2-windows-gcc-4.9.2-mingw-32-bit.zip
+    unzip SFML-2.2-windows-gcc-4.9.2-mingw-32-bit.zip
     
-    # Build SFML
+    popd
+    sudo chown -R vagrant:vagrant SeriousProton EmptyEpsilon SFML-2.1 SFML-2.2
+    
+    # Build SFML for Linux
     cd SFML-2.1
     cmake . | tee ../ee_cmake_sfml-log.txt && make | tee ../ee_build_smfl-log.txt && sudo make install | tee ../ee_install_smfl-log.txt
     
@@ -43,28 +46,34 @@ Vagrant.configure(2) do |config|
     
     # Make Debug
     python make_cbp.py debug | tee ../ee_build_debug-log.txt
+    python make_cbp.py debug win32 | tee ../ee_build_debug_w32-log.txt
     mv EmptyEpsilon EmptyEpsilon_debug
+    mv EmptyEpsilon.exe EmptyEpsilon_debug.exe
     #Make Release
     python make_cbp.py | tee ../ee_build_release-log.txt
+    python make_cbp.py win32 | tee ../ee_build_release_w32-log.txt
     
     #make redist
-    mkdir ../EELin32
-    cp -r scripts resources packs ../EELin32
-    cp LICENSE README.md ../EELin32
-    cp EmptyEpsilon EmptyEpsilon_debug ../EELin32
+    mkdir ../EE_x86
+    cp -r scripts resources packs ../EEx86
+    cp LICENSE README.md ../EEx86
+    cp EmptyEpsilon EmptyEpsilon_debug ../EEx86
+    cp EmptyEpsilon.exe EmptyEpsilon_debug.exe ../EEx86
     #add SFML libraries into lib
-    mkdir ../EELin32/lib
-    cp ../SFML-2.1/lib/* ../EELin32/lib
+    mkdir ../EEx86/lib
+    cp ../SFML-2.1/lib/* ../EEx86/lib
+    cp ../SFML-2.2/bin/* ../EEx86/lib
     
     ### If EmptyEpsilon does not start try:
     ### LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/lib ./EmptyEpsilon
-    echo LD_LIBRARY_PATH=\$LD_LIBRARY_PATH:./lib ./EmptyEpsilon > ../EELin32/start.sh
+    echo LD_LIBRARY_PATH=\$LD_LIBRARY_PATH:./lib ./EmptyEpsilon > ../EEx86/start.sh
     chmod +x start.sh
+    
+    #Put git version in a file
+    git log -1  > ../EEx86/gitversion.txt
+    
     cd ..
-    # Package EELin32
-    tar -czvf EELin32_`date +'%s'`.tar.gz ./EELin32
-    # Start webserver on port 8000
-    # Connect via http://localhost:8000
-    # python -m SimpleHTTPServer & 
+    # Package EEx86
+    tar -czvf EEx86-`date +'%s'`.tar.gz ./EEx86
   SHELL
 end
