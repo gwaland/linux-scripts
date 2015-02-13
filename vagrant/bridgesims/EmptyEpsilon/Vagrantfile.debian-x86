@@ -61,8 +61,11 @@ Vagrant.configure(2) do |config|
     cp EmptyEpsilon.exe EmptyEpsilon_debug.exe ../EEx86
     #add SFML libraries into lib
     mkdir ../EEx86/lib
+    #Copy Linux Libraries
     cp ../SFML-2.1/lib/* ../EEx86/lib
-    cp ../SFML-2.2/bin/* ../EEx86/lib
+    #Copy Windows DLLs
+    cp ../SFML-2.2/bin/* ../EEx86/
+    cp /usr/lib/gcc/i686-w64-mingw32/4.9-win32/libstdc++-6.dll /usr/lib/gcc/i686-w64-mingw32/4.9-win32/libgcc_s_sjlj-1.dll /usr/i686-w64-mingw32/lib/libwinpthread-1.dll ../EEx86/
     
     ### If EmptyEpsilon does not start try:
     ### LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/lib ./EmptyEpsilon
