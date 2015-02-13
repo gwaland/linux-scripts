@@ -54,7 +54,7 @@ Vagrant.configure(2) do |config|
     python make_cbp.py win32 | tee ../ee_build_release_w32-log.txt
     
     #make redist
-    mkdir ../EE_x86
+    mkdir ../EEx86
     cp -r scripts resources packs ../EEx86
     cp LICENSE README.md ../EEx86
     cp EmptyEpsilon EmptyEpsilon_debug ../EEx86
