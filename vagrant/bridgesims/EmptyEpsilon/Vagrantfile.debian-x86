@@ -23,7 +23,7 @@ Vagrant.configure(2) do |config|
     aptitude update
     #aptitude -y upgrade
     # install tools
-    aptitude -y install cmake build-essential git libgl1-mesa-dev libxrandr-dev libfreetype6-dev libglew-dev libjpeg-dev libopenal-dev libsndfile1-dev unzip tar gzip
+    aptitude -y install cmake build-essential git libgl1-mesa-dev libxrandr-dev libfreetype6-dev libglew-dev libjpeg-dev libopenal-dev libsndfile1-dev unzip zip mingw32
     # Clone repos
     git clone https://github.com/daid/SeriousProton.git
     git clone https://github.com/daid/EmptyEpsilon.git
@@ -74,6 +74,6 @@ Vagrant.configure(2) do |config|
     
     cd ..
     # Package EEx86
-    tar -czvf EEx86-`date +'%s'`.tar.gz ./EEx86
+    zip -r EEx86-`date +'%s'`.zip ./EEx86
   SHELL
 end
