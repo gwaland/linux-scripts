@@ -1,0 +1,83 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+## Rename this to Vagrantfile to have 'vagrant up' work properly
+
+###64bit Ubuntu 14.04LTS Vagrant VM
+### for EmptyEpsilon https://github.com/daid/EmptyEpsilon
+### By Kwadroke "of The Wired" https://github.com/kwadroke
+
+Vagrant.configure(2) do |config|
+  config.vm.box = "ubuntu/trusty64"
+  config.ssh.forward_x11 = true
+  config.vm.provider "virtualbox" do |vb|
+    vb.cpus = 1
+    vb.memory = 512
+  end
+
+  config.vm.hostname = "bridgesim-ee"
+  config.vm.network :forwarded_port, guest: 8000, host: 8000  #for python -m SimpleHTTPServer 
+
+  config.vm.provision "shell", inline: <<-SHELL
+    # update system
+    aptitude update
+    #aptitude -y upgrade
+    # install tools
+    aptitude -y install cmake build-essential git libgl1-mesa-dev libxrandr-dev libfreetype6-dev libglew-dev libjpeg-dev libopenal-dev libsndfile1-dev unzip zip mingw32 mingw-w64
+    # Clone repos
+    git clone https://github.com/daid/SeriousProton.git
+    git clone https://github.com/daid/EmptyEpsilon.git
+    # Get SFML 2.1
+    wget https://github.com/LaurentGomila/SFML/archive/2.1.zip | tee ee_download_sfml2.1_log.txt
+    unzip 2.1.zip
+    # Get SFML 2.2 for Windows
+    #wget http://www.sfml-dev.org/files/SFML-2.2-windows-gcc-4.9.2-mingw-32-bit.zip | tee ee_download_sfml2.2_log.txt
+    #unzip SFML-2.2-windows-gcc-4.9.2-mingw-32-bit.zip
+    wget http://www.sfml-dev.org/files/SFML-2.2-windows-gcc-4.8.1-tdm-32-bit.zip| tee ee_download_sfml2.2_log.txt
+    unzip SFML-2.2-windows-gcc-4.8.1-tdm-32-bit.zip
+    
+    sudo chown -R vagrant:vagrant SeriousProton EmptyEpsilon SFML-2.1 SFML-2.2
+    
+    # Build SFML for Linux
+    cd SFML-2.1
+    cmake . | tee ../ee_cmake_sfml-log.txt && make | tee ../ee_build_smfl-log.txt && sudo make install | tee ../ee_install_smfl-log.txt
+    
+    # Build EmptyEpsilon
+    cd ../EmptyEpsilon
+    
+    # Make Debug
+    python make_cbp.py debug | tee ../ee_build_debug-log.txt
+    python make_cbp.py debug win32 | tee ../ee_build_debug_w32-log.txt
+    mv EmptyEpsilon EmptyEpsilon_debug
+    mv EmptyEpsilon.exe EmptyEpsilon_debug.exe
+    #Make Release
+    python make_cbp.py | tee ../ee_build_release-log.txt
+    python make_cbp.py win32 | tee ../ee_build_release_w32-log.txt
+    
+    #make redist
+    mkdir ../EEx86
+    cp -r scripts resources packs ../EEx86
+    cp LICENSE README.md ../EEx86
+    cp EmptyEpsilon EmptyEpsilon_debug ../EEx86
+    cp EmptyEpsilon.exe EmptyEpsilon_debug.exe ../EEx86
+    #add SFML libraries into lib
+    mkdir ../EEx86/lib
+    #Copy Linux Libraries
+    cp ../SFML-2.1/lib/* ../EEx86/lib
+    #Copy Windows DLLs
+    cp ../SFML-2.2/bin/* ../EEx86/
+    cp /usr/lib/gcc/i686-w64-mingw32/4.9-win32/libstdc++-6.dll /usr/lib/gcc/i686-w64-mingw32/4.9-win32/libgcc_s_sjlj-1.dll /usr/i686-w64-mingw32/lib/libwinpthread-1.dll ../EEx86/
+    
+    ### If EmptyEpsilon does not start try:
+    ### LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/lib ./EmptyEpsilon
+    echo LD_LIBRARY_PATH=\$LD_LIBRARY_PATH:./lib ./EmptyEpsilon > ../EEx86/start.sh
+    chmod +x start.sh
+    
+    #Put git version in a file
+    git log -1  > ../EEx86/gitversion.txt
+    
+    cd ..
+    # Package EEx86
+    zip -r EEx86-`date +'%s'`.zip ./EEx86
+  SHELL
+end
