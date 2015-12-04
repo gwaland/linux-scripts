@@ -35,9 +35,6 @@ Vagrant.configure(2) do |config|
     # Get DRMingW for Debugging Windows Build
     git clone https://github.com/jrfonseca/drmingw.git
     
-    # Changing owner to vagrant incase we need to interactively work with these files 
-    
-    
     echo Build SFML for Linux
     cd $BUILDHOME/SFML-2.3
     if [ ! -d lin32 ]; then
