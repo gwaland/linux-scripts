@@ -16,68 +16,121 @@ Vagrant.configure(2) do |config|
   end
 
   config.vm.hostname = "bridgesim-ee"
-  config.vm.network :forwarded_port, guest: 8000, host: 8000  #for python -m SimpleHTTPServer 
+
 
   config.vm.provision "shell", inline: <<-SHELL
+    #We are not going to assume we are in the /home/vagrant directory
+    BUILDHOME=`pwd`
+    
     # update system
-    aptitude update
-    #aptitude -y upgrade
+    apt-get update
+    #apt-get -y upgrade
     # install tools
-    aptitude -y install cmake build-essential git libgl1-mesa-dev libxrandr-dev libfreetype6-dev libglew-dev libjpeg-dev libopenal-dev libsndfile1-dev unzip zip mingw32
+    apt-get -y install cmake build-essential git libgl1-mesa-dev libxrandr-dev libfreetype6-dev libglew-dev libjpeg-dev libopenal-dev libxcb1-dev libxcb-image0-dev libudev-dev libflac-dev libvorbis-dev  unzip zip mingw32
     # Clone repos
     git clone https://github.com/daid/SeriousProton.git
     git clone https://github.com/daid/EmptyEpsilon.git
-    # Get SFML 2.1
-    wget https://github.com/LaurentGomila/SFML/archive/2.1.zip | tee ee_download_sfml2.1_log.txt
-    unzip 2.1.zip
-    # Get SFML 2.2 for Windows
-    #wget http://www.sfml-dev.org/files/SFML-2.2-windows-gcc-4.9.2-mingw-32-bit.zip | tee ee_download_sfml2.2_log.txt
-    #unzip SFML-2.2-windows-gcc-4.9.2-mingw-32-bit.zip
-    wget http://www.sfml-dev.org/files/SFML-2.2-windows-gcc-4.8.1-tdm-32-bit.zip| tee ee_download_sfml2.2_log.txt
-    unzip SFML-2.2-windows-gcc-4.8.1-tdm-32-bit.zip
+    # Get SFML 2.3.2
+    git clone https://github.com/SFML/SFML.git -b 2.3.x SFML-2.3
+    # Get DRMingW for Debugging Windows Build
+    git clone https://github.com/jrfonseca/drmingw.git
     
-    sudo chown -R vagrant:vagrant SeriousProton EmptyEpsilon SFML-2.1 SFML-2.2
+    # Changing owner to vagrant incase we need to interactively work with these files 
     
-    # Build SFML for Linux
-    cd SFML-2.1
-    cmake . | tee ../ee_cmake_sfml-log.txt && make | tee ../ee_build_smfl-log.txt && sudo make install | tee ../ee_install_smfl-log.txt
     
-    # Build EmptyEpsilon
-    cd ../EmptyEpsilon
+    echo Build SFML for Linux
+    cd $BUILDHOME/SFML-2.3
+    if [ ! -d lin32 ]; then
+     mkdir lin32
+    fi
+    cd lin32
+    cmake ..  && make  && sudo make install 
     
-    # Make Debug
-    python make_cbp.py debug | tee ../ee_build_debug-log.txt
-    python make_cbp.py debug win32 | tee ../ee_build_debug_w32-log.txt
-    mv EmptyEpsilon EmptyEpsilon_debug
-    mv EmptyEpsilon.exe EmptyEpsilon_debug.exe
-    #Make Release
-    python make_cbp.py | tee ../ee_build_release-log.txt
-    python make_cbp.py win32 | tee ../ee_build_release_w32-log.txt
+    echo Build SFML for Windows
+    cd $BUILDHOME/SFML-2.3
+    if [ ! -d win32 ]; then
+     mkdir win32
+    fi
+    cd win32
+    # We're using the CMake Tool chain file from EE here to make it easier to compile for Windows
+    cmake -DCMAKE_TOOLCHAIN_FILE=$BUILDHOME/EmptyEpsilon/cmake/mingw.toolchain -DOPENAL_LIBRARY=$BUILDHOME/SFML-2.3/extlibs/bin/x86/openal32.dll ..
+    make
     
-    #make redist
-    mkdir ../EEx86
-    cp -r scripts resources packs ../EEx86
-    cp LICENSE README.md ../EEx86
-    cp EmptyEpsilon EmptyEpsilon_debug ../EEx86
-    cp EmptyEpsilon.exe EmptyEpsilon_debug.exe ../EEx86
-    #add SFML libraries into lib
-    mkdir ../EEx86/lib
-    #Copy Linux Libraries
-    cp ../SFML-2.1/lib/* ../EEx86/lib
-    #Copy Windows DLLs
-    cp ../SFML-2.2/bin/* ../EEx86/
-    cp /usr/lib/gcc/i686-w64-mingw32/4.9-win32/libstdc++-6.dll /usr/lib/gcc/i686-w64-mingw32/4.9-win32/libgcc_s_sjlj-1.dll /usr/i686-w64-mingw32/lib/libwinpthread-1.dll ../EEx86/
+    echo Build DrMingW for Windows
+    cd $BUILDHOME/drmingw
+    if [ ! -d win32 ]; then
+     mkdir win32
+    fi
+    cd win32
+        # We're using the CMake Tool chain file from EE here to make it easier to compile for Windows
+    cmake -DCMAKE_TOOLCHAIN_FILE=$BUILDHOME/EmptyEpsilon/cmake/mingw.toolchain ..
+    sudo make install
     
-    ### If EmptyEpsilon does not start try:
-    ### LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/lib ./EmptyEpsilon
-    echo LD_LIBRARY_PATH=\$LD_LIBRARY_PATH:./lib ./EmptyEpsilon > ../EEx86/start.sh
-    chmod +x start.sh
+    #Work around for "-lexchndl" missing dll
+    sudo cp bin/exchndl.dll /usr/lib/gcc/i686-w64-mingw32/4.9-win32/
     
-    #Put git version in a file
-    git log -1  > ../EEx86/gitversion.txt
+    sudo ldconfig
     
-    cd ..
-    # Package EEx86
-    zip -r EEx86-`date +'%s'`.zip ./EEx86
+    
+    echo Build EmptyEpsilon for Linux
+    cd $BUILDHOME/EmptyEpsilon
+    #Write short commit name to file for later user
+    git log --pretty=format:'%h' -n 1 > ../eecommitver.log
+    
+    if [ ! -d lin32 ]; then
+     mkdir lin32
+    fi
+    cd lin32
+    cmake -DSERIOUS_PROTON_DIR=$BUILDHOME/SeriousProton/ -DSFML_ROOT=$BUILDHOME/SFML-2.3 ..
+    make
+    
+    echo Build EmptyEpsilon for Windows
+    cd $BUILDHOME/EmptyEpsilon
+    if [ ! -d win32 ]; then
+     mkdir win32
+    fi
+    cd win32
+    cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_FLAGS:STRING=-DSFML_STATIC -DCMAKE_TOOLCHAIN_FILE=$BUILDHOME/EmptyEpsilon/cmake/mingw.toolchain -DSERIOUS_PROTON_DIR=$BUILDHOME/SeriousProton/ -DSFML_ROOT=$BUILDHOME/SFML-2.3/win32 -DMING_DLL_PATH=/usr/lib/gcc/i686-w64-mingw32/4.9-win32 -DENABLE_CRASH_LOGGER=1 ..
+    make
+    
+    echo Setup for Zip File
+
+    cd $BUILDHOME/EmptyEpsilon
+    python compile_script_docs.py > scripts_docs.html
+
+    cd $BUILDHOME
+    if [ ! -d $BUILDHOME/EE_ZIP ]; then
+      mkdir $BUILDHOME/EE_ZIP
+    fi 
+    
+    if [ -d $BUILDHOME/EE_ZIP/EmptyEpsilon ]; then
+      sudo rm -rf $BUILDHOME/EE_ZIP/EmptyEpsilon/*
+    else
+      mkdir $BUILDHOME/EE_ZIP/EmptyEpsilon
+    fi 
+    
+    echo Copying Folders...
+    cp -rv $BUILDHOME/EmptyEpsilon/packs $BUILDHOME/EmptyEpsilon/scripts $BUILDHOME/EmptyEpsilon/resources $BUILDHOME/EE_ZIP/EmptyEpsilon
+    echo
+    echo Copying Binaries...
+    cp -v $BUILDHOME/EmptyEpsilon/win32/EmptyEpsilon.exe $BUILDHOME/EmptyEpsilon/lin32/EmptyEpsilon $BUILDHOME/EE_ZIP/EmptyEpsilon
+    echo
+    echo Copying Support Files...
+    cp -v $BUILDHOME/EmptyEpsilon/artemis_mission_convert* $BUILDHOME/EmptyEpsilon/LICENSE $BUILDHOME/EmptyEpsilon/logo.svg $BUILDHOME/EmptyEpsilon/README.md $BUILDHOME/EmptyEpsilon/scripts_docs.html  $BUILDHOME/EE_ZIP/EmptyEpsilon
+    echo
+    echo Copying DLL files...
+    cp -v $BUILDHOME/SFML-2.3/win32/lib/*.dll $BUILDHOME/SFML-2.3/extlibs/bin/x86/openal32.dll $BUILDHOME/drmingw/win32/bin/exchndl.dll /usr/lib/gcc/i686-w64-mingw32/4.9-win32/libstdc++-6.dll /usr/lib/gcc/i686-w64-mingw32/4.9-win32/libgcc_s_sjlj-1.dll /usr/i686-w64-mingw32/lib/libwinpthread-1.dll/*.dll  $BUILDHOME/EE_ZIP/EmptyEpsilon
+    echo
+    echo Copying Reference files...
+    cp -v $BUILDHOME/eecommitver.log $BUILDHOME/EE_ZIP/EmptyEpsilon
+    echo
+ 
+    zip -r EmptyEpsilon_$(date +"%Y%m%d")_$(cat $BUILDHOME/eecommitver.log).zip $BUILDHOME/EE_ZIP/EmptyEpsilon
+    
+    cp EmptyEpsilon_$(date +"%Y%m%d")_$(cat $BUILDHOME/eecommitver.log).zip /vagrant
+    
+    echo Changing owner to vagrant of all files in the home directory incase we need to interactively work with these files 
+    sudo chown -R vagrant:vagrant $BUILDHOME
+
   SHELL
 end
