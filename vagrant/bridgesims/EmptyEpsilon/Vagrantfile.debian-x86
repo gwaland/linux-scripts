@@ -124,10 +124,11 @@ Vagrant.configure(2) do |config|
     echo Copying Reference files...
     cp -v $BUILDHOME/eecommitver.log $BUILDHOME/EE_ZIP/EmptyEpsilon
     echo
- 
+    cd $BUILDHOME/EE_ZIP
     zip -r EmptyEpsilon_$(date +"%Y%m%d")_$(cat $BUILDHOME/eecommitver.log).zip $BUILDHOME/EE_ZIP/EmptyEpsilon
     
     cp EmptyEpsilon_$(date +"%Y%m%d")_$(cat $BUILDHOME/eecommitver.log).zip /vagrant
+    cd $BUILDHOME
     
     echo Changing owner to vagrant of all files in the home directory incase we need to interactively work with these files 
     sudo chown -R vagrant:vagrant $BUILDHOME
