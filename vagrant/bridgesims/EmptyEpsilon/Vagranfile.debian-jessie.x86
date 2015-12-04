@@ -1,0 +1,29 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+## Rename this to Vagrantfile to have 'vagrant up' work properly
+
+###32bit Debian 9 Vagrant VM
+### for EmptyEpsilon https://github.com/daid/EmptyEpsilon
+### By Kwadroke "of The Wired" https://github.com/kwadroke
+
+Vagrant.configure(2) do |config|
+  config.vm.box = "deb/jessie-i386"
+  config.ssh.forward_x11 = true
+  config.vm.provider "virtualbox" do |vb|
+    vb.cpus = 1
+    vb.memory = 512
+  end
+
+  config.vm.hostname = "bridgesim-ee"
+
+
+  config.vm.provision "shell", inline: <<-SHELL
+  
+  
+    wget https://raw.githubusercontent.com/kwadroke/linux-scripts/master/vagrant/bridgesims/EmptyEpsilon/build_ee.sh
+    chmod +x build_ee.sh
+    ./build_ee.sh
+
+  SHELL
+end
