@@ -102,9 +102,12 @@ echo
 cd $BUILDHOME/EE_ZIP
 zip -r EmptyEpsilon_$(date +"%Y%m%d")_$(cat $BUILDHOME/eecommitver.log).zip $BUILDHOME/EE_ZIP/EmptyEpsilon
 
-#From Here we are assuming you're using vagrant, really need to check first.
-cp EmptyEpsilon_$(date +"%Y%m%d")_$(cat $BUILDHOME/eecommitver.log).zip /vagrant
-cd $BUILDHOME
 
-echo Changing owner to vagrant of all files in the home directory incase we need to interactively work with these files 
-sudo chown -R vagrant:vagrant $BUILDHOME
+if [ -d /vagrant ]; then
+ #From Here we are assuming you're using vagrant, since there is a /vagrant directory
+ cp EmptyEpsilon_$(date +"%Y%m%d")_$(cat $BUILDHOME/eecommitver.log).zip /vagrant
+ cd $BUILDHOME
+
+ echo Changing owner to vagrant of all files in the home directory incase we need to interactively work with these files 
+ sudo chown -R vagrant:vagrant $BUILDHOME
+fi
