@@ -119,7 +119,7 @@ Vagrant.configure(2) do |config|
     cp -v $BUILDHOME/EmptyEpsilon/artemis_mission_convert* $BUILDHOME/EmptyEpsilon/LICENSE $BUILDHOME/EmptyEpsilon/logo.svg $BUILDHOME/EmptyEpsilon/README.md $BUILDHOME/EmptyEpsilon/scripts_docs.html  $BUILDHOME/EE_ZIP/EmptyEpsilon
     echo
     echo Copying DLL files...
-    cp -v $BUILDHOME/SFML-2.3/win32/lib/*.dll $BUILDHOME/SFML-2.3/extlibs/bin/x86/openal32.dll $BUILDHOME/drmingw/win32/bin/exchndl.dll /usr/lib/gcc/i686-w64-mingw32/4.9-win32/libstdc++-6.dll /usr/lib/gcc/i686-w64-mingw32/4.9-win32/libgcc_s_sjlj-1.dll /usr/i686-w64-mingw32/lib/libwinpthread-1.dll/*.dll  $BUILDHOME/EE_ZIP/EmptyEpsilon
+    cp -v $BUILDHOME/SFML-2.3/win32/lib/*.dll $BUILDHOME/SFML-2.3/extlibs/bin/x86/openal32.dll $BUILDHOME/drmingw/win32/bin/*.dll /usr/lib/gcc/i686-w64-mingw32/4.9-win32/libstdc++-6.dll /usr/lib/gcc/i686-w64-mingw32/4.9-win32/libgcc_s_sjlj-1.dll /usr/i686-w64-mingw32/lib/libwinpthread-1.dll/*.dll  $BUILDHOME/EE_ZIP/EmptyEpsilon
     echo
     echo Copying Reference files...
     cp -v $BUILDHOME/eecommitver.log $BUILDHOME/EE_ZIP/EmptyEpsilon
