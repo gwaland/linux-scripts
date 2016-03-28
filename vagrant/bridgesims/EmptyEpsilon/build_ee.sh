@@ -6,7 +6,7 @@ BUILDHOME=`pwd`
 apt-get update
 #apt-get -y upgrade
 # install tools
-apt-get -y install cmake build-essential git libgl1-mesa-dev libxrandr-dev libfreetype6-dev libglew-dev libjpeg-dev libopenal-dev libxcb1-dev libxcb-image0-dev libudev-dev libflac-dev libvorbis-dev  unzip zip mingw32
+apt-get -y install libexpat-dev libcurl4-openssl-dev  libarchive-dev libbz2-dev libLZMA-dev build-essential git libgl1-mesa-dev libxrandr-dev libfreetype6-dev libglew-dev libjpeg-dev libopenal-dev libxcb1-dev libxcb-image0-dev libudev-dev libflac-dev libvorbis-dev  unzip zip mingw32
 # Clone repos
 git clone https://github.com/daid/SeriousProton.git
 git clone https://github.com/daid/EmptyEpsilon.git
@@ -14,6 +14,19 @@ git clone https://github.com/daid/EmptyEpsilon.git
 git clone https://github.com/SFML/SFML.git -b 2.3.x SFML-2.3
 # Get DRMingW for Debugging Windows Build
 git clone https://github.com/jrfonseca/drmingw.git
+#grab cmake
+wget http://www.cmake.org/files/v3.5/cmake-3.5.1.tar.gz
+
+echo Build cmake
+tar -xf cmake-3.5.1.tar.gz -C $BUILDHOME
+cd $BUILDHOME/cmake-3.5.1
+./bootstrap --prefix=/usr       \
+            --system-libs       \
+            --mandir=/share/man \
+            --no-system-jsoncpp \
+            --docdir=/share/doc/cmake-3.5.1 &&
+make
+sudo make install
 
 echo Build SFML for Linux
 cd $BUILDHOME/SFML-2.3
